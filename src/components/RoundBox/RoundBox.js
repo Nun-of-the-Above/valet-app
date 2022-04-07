@@ -45,8 +45,8 @@ export function RoundBox({ round, disabled }) {
     setSession(parentSession);
   }, [sessions, round]);
 
-  function writeTimeToDb(seconds) {
-    set(ref(database, "timer"), {
+  async function writeTimeToDb(seconds) {
+    await set(ref(database, "timer"), {
       value: seconds,
     });
   }
@@ -82,6 +82,7 @@ export function RoundBox({ round, disabled }) {
               width="full"
               disabled={round.votingActive || round.done || disabled}
               onClick={() => {
+                writeTimeToDb(60);
                 updateDoc(roundRef, { votingActive: true });
               }}
             >
@@ -94,9 +95,9 @@ export function RoundBox({ round, disabled }) {
               colorScheme="red"
               width="full"
               disabled={!round.votingActive}
-              onClick={() => {
+              onClick={async () => {
                 updateDoc(roundRef, { votingActive: false, done: true });
-                writeTimeToDb(60);
+                await writeTimeToDb(60);
                 if (round.number === 0) {
                   correctIfDuplicateLosers(
                     round,
