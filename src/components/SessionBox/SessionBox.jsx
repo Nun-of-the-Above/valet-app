@@ -144,25 +144,6 @@ const ActivateSessionButton = ({ session, disabled }) => {
   );
 };
 
-const SetSessionDoneButton = ({ session, disabled }) => {
-  return (
-    <button
-      className={`px-4 py-2 rounded ${
-        disabled
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-blue-500 hover:bg-blue-600 text-white"
-      }`}
-      onClick={() => {
-        // Mock updating session
-        console.log("Mock: Setting session done", session.sessionID);
-      }}
-      disabled={disabled}
-    >
-      Sätt till klar och visa sista bild
-    </button>
-  );
-};
-
 const DeactivateSessionButton = ({ session, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
@@ -189,7 +170,7 @@ const DeactivateSessionButton = ({ session, disabled }) => {
 
             <p className="mb-6">
               Alla användare kommer loggas ut. Föreställning sätts till
-              "Genomförd".
+              &quot;Genomförd&quot;.
             </p>
 
             <div className="flex justify-end space-x-3">

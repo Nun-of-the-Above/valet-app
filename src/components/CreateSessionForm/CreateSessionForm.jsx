@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 
-export function CreateSessionForm({ isOpen, onClose, btnRef }) {
+export function CreateSessionForm({ isOpen, onClose }) {
   const {
     register,
     handleSubmit,

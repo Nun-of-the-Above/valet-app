@@ -4,10 +4,8 @@ import { CandidateCard } from "../CandidateCard";
 import { RoundTimer } from "../RoundTimer/RoundTimer";
 
 export function RoundBox({ round, disabled }) {
-  const [voteCount, setVoteCount] = useState(null);
-  const [session, setSession] = useState(null);
-  const [votesInActiveRound, setVotesInActiveRound] = useState(null);
   const [mockRound, setMockRound] = useState(round);
+  const [voteCount, setVoteCount] = useState(null);
 
   // Mock data that would come from context
   const mockData = {
@@ -27,9 +25,8 @@ export function RoundBox({ round, disabled }) {
   useEffect(() => {
     if (!mockData.votes) return;
     const votesInActiveRound = mockData.votes.filter(
-      (v) => v.roundID === round.roundID
+      (v) => v.roundID === round.roundID,
     );
-    setVotesInActiveRound(votesInActiveRound);
 
     const voteMap = new Map();
 
@@ -41,14 +38,6 @@ export function RoundBox({ round, disabled }) {
 
     setVoteCount([...voteMap]);
   }, [mockData.votes, round]);
-
-  useEffect(() => {
-    const parentSession = mockData.sessions.find(
-      (s) => s.sessionID === round.parentSessionID
-    );
-
-    setSession(parentSession);
-  }, [mockData.sessions, round]);
 
   async function writeTimeToDb(seconds) {
     // Mock timer update
@@ -159,20 +148,23 @@ export function RoundBox({ round, disabled }) {
   );
 }
 
-const ResultsBoxAdmin = ({ voteCount, round, showResult }) => {
+const ResultsBoxAdmin = ({ voteCount, round }) => {
   const [data, setData] = useState(null);
   const [numOfVotes, setNumOfVotes] = useState(0);
 
   useEffect(() => {
     if (!voteCount) return;
 
-    const totalVotes = voteCount.reduce((acc, [name, votes]) => acc + votes, 0);
+    const totalVotes = voteCount.reduce((acc, [, votes]) => acc + votes, 0);
     const percentagePerVote = 100 / totalVotes;
 
     const percentageData = voteCount
-      .map(([c, v]) => [c, Math.floor(v * percentagePerVote * 100) / 100])
-      .map(([name, percent]) => ({
-        name: name,
+      .map(([candidate, votes]) => [
+        candidate,
+        Math.floor(votes * percentagePerVote * 100) / 100,
+      ])
+      .map(([candidate, percent]) => ({
+        name: candidate,
         value: percent,
       }));
 

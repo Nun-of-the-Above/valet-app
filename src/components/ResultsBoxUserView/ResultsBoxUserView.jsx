@@ -30,12 +30,12 @@ export function ResultsBoxUserView() {
     });
 
     setVoteCount([...voteMap].sort((a, b) => a[1] - b[1]));
-  }, [votesInActiveRound]);
+  }, [votesInActiveRound, activeRound.number, currCandidates]);
 
   useEffect(() => {
     if (!voteCount) return;
 
-    const totalVotes = voteCount.reduce((acc, [name, votes]) => acc + votes, 0);
+    const totalVotes = voteCount.reduce((acc, [, votes]) => acc + votes, 0);
     const percentagePerVote = 100 / totalVotes;
 
     const percentageData = voteCount
@@ -102,7 +102,7 @@ export function ResultsBoxUserView() {
                     {data
                       .map((obj) => [obj.name, obj.value])
                       .sort((a, b) => b[1] - a[1])
-                      .map(([name, percentageOfVotes]) => (
+                      .map(([name]) => (
                         <div key={name} className="animate-pulse">
                           <div className="h-[50px] w-[50px] bg-gray-200 rounded" />
                         </div>

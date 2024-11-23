@@ -16,7 +16,7 @@ function AuthProvider(props) {
     setIsLoadedAuth(true);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email) => {
     // Mock login delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -26,7 +26,7 @@ function AuthProvider(props) {
     return mockUser;
   };
 
-  const register = async (email, password) => {
+  const register = async (email) => {
     // Mock register delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -47,8 +47,7 @@ function AuthProvider(props) {
 
   const registerWithRandomEmail = async () => {
     const email = uuidv4() + "@gmail.com";
-    const password = uuidv4();
-    await register(email, password);
+    await register(email);
   };
 
   return (

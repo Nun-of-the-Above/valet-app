@@ -5,10 +5,10 @@ export const correctIfDuplicateLosers = async (
   round,
   voteCount,
   candidatesLeft,
-  votesInActiveRound
+  votesInActiveRound,
 ) => {
   const sorted = voteCount.sort((a, b) => a[1] - b[1]);
-  const losers = sorted.filter(([c, votes]) => votes === sorted[0][1]);
+  const losers = sorted.filter(([, votes]) => votes === sorted[0][1]);
 
   const loserVoteCount = losers[0][1];
 
@@ -36,7 +36,7 @@ export const correctIfDuplicateLosers = async (
 
       // Mock batch operation by adding votes one by one
       const addVotePromises = candidatesLeft.map((candidate) =>
-        addVote({ candidate, roundID: round.roundID })
+        addVote({ candidate, roundID: round.roundID }),
       );
 
       await Promise.all(addVotePromises);

@@ -20,7 +20,7 @@ export function RoundTimer({ round, setVotingEnabled, isAdmin }) {
       if (intervalState === null) {
         const startTime = new Date(localStorage.getItem(round.roundID));
         const startingInterval = localStorage.getItem(
-          round.roundID + "_initialTimer"
+          round.roundID + "_initialTimer",
         );
         const currentTime = new Date();
 
@@ -32,14 +32,14 @@ export function RoundTimer({ round, setVotingEnabled, isAdmin }) {
       localStorage.setItem(round.roundID, new Date());
       localStorage.setItem(round.roundID + "_initialTimer", timer);
     }
-  }, [round, intervalState]);
+  }, [round, intervalState, timer]);
 
   useEffect(() => {
     if (round.votingActive && intervalState === null) {
       setIntervalState(
         setInterval(() => {
           setSeconds((seconds) => seconds - 1);
-        }, 1000)
+        }, 1000),
       );
     } else if (!round.votingActive) {
       clearInterval(intervalState);
@@ -49,7 +49,7 @@ export function RoundTimer({ round, setVotingEnabled, isAdmin }) {
     // console.log("Clean up happened.");
     // clearInterval(intervalState);
     // };
-  }, [round]);
+  }, [intervalState, round]);
 
   useEffect(() => {
     if (seconds <= 0 && setVotingEnabled) {
