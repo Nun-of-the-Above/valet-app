@@ -1,4 +1,3 @@
-import { Grid, GridItem, Skeleton } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Cell, Pie, PieChart } from "recharts";
 import {
@@ -8,7 +7,7 @@ import {
 import { useSessionContext } from "../../context/session-context";
 import { CandidateCard } from "../CandidateCard";
 
-export const ResultsBoxUserView = () => {
+export function ResultsBoxUserView() {
   const { activeRound, votesInActiveRound, currCandidates } =
     useSessionContext();
 
@@ -99,20 +98,16 @@ export const ResultsBoxUserView = () => {
             ) : (
               <>
                 {data && (
-                  <Grid
-                    padding="3"
-                    className="rounded-lg"
-                    templateColumns="1fr 1fr"
-                  >
+                  <div className="grid grid-cols-2 p-3 rounded-lg">
                     {data
                       .map((obj) => [obj.name, obj.value])
                       .sort((a, b) => b[1] - a[1])
                       .map(([name, percentageOfVotes]) => (
-                        <GridItem key={name}>
-                          <Skeleton height="50px" width="50px" />
-                        </GridItem>
+                        <div key={name} className="animate-pulse">
+                          <div className="h-[50px] w-[50px] bg-gray-200 rounded" />
+                        </div>
                       ))}
-                  </Grid>
+                  </div>
                 )}
               </>
             )}
@@ -121,4 +116,4 @@ export const ResultsBoxUserView = () => {
       )}
     </>
   );
-};
+}

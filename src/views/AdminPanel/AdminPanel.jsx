@@ -1,6 +1,3 @@
-import { Button } from "@chakra-ui/button";
-import { useDisclosure } from "@chakra-ui/hooks";
-import { Heading, HStack, VStack } from "@chakra-ui/layout";
 import { useRef } from "react";
 import { CreateSessionForm } from "../../components/CreateSessionForm/CreateSessionForm";
 import { SessionBox } from "../../components/SessionBox";
@@ -9,35 +6,45 @@ import { useAuth } from "../../context/auth-context";
 
 export function AdminPanel() {
   const { logout } = useAuth();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
+  const [isOpen, setIsOpen] = useState(false);
 
   const { sessions, isLoaded } = useAdminContext();
 
   return (
     <div className="text-center">
-      <Heading>ADMIN DASHBOARD</Heading>
+      <h1 className="text-3xl font-bold">ADMIN DASHBOARD</h1>
+
       {isLoaded ? (
         <div className="flex flex-col">
-          <HStack>
-            <HStack margin="3" spacing="3">
-              <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
+          <div className="flex flex-row">
+            <div className="flex flex-row m-3 space-x-3">
+              <button
+                ref={btnRef}
+                className="px-4 py-2 text-white bg-teal-500 rounded hover:bg-teal-600"
+                onClick={() => setIsOpen(true)}
+              >
                 Skapa ny föreställning
-              </Button>
-              <Button onClick={logout}>Logga ut</Button>
-            </HStack>
+              </button>
+              <button
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={logout}
+              >
+                Logga ut
+              </button>
+            </div>
             <CreateSessionForm
               isOpen={isOpen}
               placement="left"
-              onClose={onClose}
+              onClose={() => setIsOpen(false)}
               finalFocusRef={btnRef}
               size="md"
             />
-          </HStack>
-          <Heading padding="3" size="lg" className="text-center">
+          </div>
+          <h2 className="p-3 text-2xl font-bold text-center">
             Föreställningar
-          </Heading>
-          <VStack spacing="10" marginBottom={10}>
+          </h2>
+          <div className="flex flex-col items-center space-y-10 mb-10">
             {sessions ? (
               sessions
                 .sort((a, b) => new Date(b.showDate) - new Date(a.showDate))
@@ -47,10 +54,10 @@ export function AdminPanel() {
             ) : (
               <p>Det finns inga föreställningar.</p>
             )}
-          </VStack>
+          </div>
         </div>
       ) : (
-        <Heading>Laddar admin dashboard...</Heading>
+        <h1 className="text-3xl font-bold">Laddar admin dashboard...</h1>
       )}
     </div>
   );

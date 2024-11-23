@@ -1,11 +1,9 @@
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firestore";
-
-// ? Should this entire thing be atomic? Complete success or complete fail.
 export const updateCurrentCandidates = async (round, voteCount, rounds) => {
-  const sessionRef = doc(db, "sessions", round.parentSessionID);
-  const sessionSnapshot = await getDoc(sessionRef);
-  const session = sessionSnapshot.data();
+  // Mock getting session data
+  console.log("Mock: Getting session data for", round.parentSessionID);
+  const session = {
+    candidatesLeft: ["Alina", "Isabelle", "Filip", "Simon"],
+  };
 
   //Cautionary sort and getting of loserName.
   const loserName = voteCount.sort((a, b) => a[1] - b[1])[0][0];
@@ -17,9 +15,10 @@ export const updateCurrentCandidates = async (round, voteCount, rounds) => {
 
   // UPDATE SESSION WITH LOSER REMOVED
   try {
-    updateDoc(sessionRef, {
-      candidatesLeft: candidatesLeftWithoutLoser,
-    });
+    console.log(
+      "Mock: Updating session candidatesLeft to",
+      candidatesLeftWithoutLoser
+    );
     console.log("Successfully deleted user from session candidatesLeft");
   } catch (e) {
     console.error("Error updating session candidate list: ", e);
@@ -29,13 +28,12 @@ export const updateCurrentCandidates = async (round, voteCount, rounds) => {
 
   // UPDATE FUTURE ROUNDS WITH LOSER REMOVED
   remainingRoundsInSession.forEach((round) => {
-    const roundRef = doc(db, "rounds", round.roundID);
-
     // Update the candidatesInRound in db for each round.
     try {
-      updateDoc(roundRef, {
-        candidatesInRound: candidatesLeftWithoutLoser,
-      });
+      console.log(
+        `Mock: Updating Round #${round.number} candidatesInRound to`,
+        candidatesLeftWithoutLoser
+      );
       console.log(`Success updating candidateList in Round #${round.number}`);
     } catch (e) {
       console.error(

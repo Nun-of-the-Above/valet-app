@@ -1,4 +1,3 @@
-import { Grid, Heading, VStack } from "@chakra-ui/layout";
 import { useState } from "react";
 import {
   INITIAL_CANDIDATES,
@@ -27,7 +26,7 @@ export const VotingBox = () => {
           </div>
           {activeRound.number === 0 ? (
             <>
-              <Heading className="px-12 pb-[3vh] text-center" size="lg">
+              <h1 className="px-12 pb-[3vh] text-center text-2xl font-bold">
                 {userVoteInActiveRound ? (
                   <>
                     <p>Tack för din röst!</p>
@@ -36,11 +35,8 @@ export const VotingBox = () => {
                 ) : (
                   "Rösta på det väder du tycker det är idag"
                 )}
-              </Heading>
-              <Grid
-                gridTemplateColumns="1fr 1fr"
-                className="gap-4 px-5 pb-5 place-items-center"
-              >
+              </h1>
+              <div className="grid grid-cols-2 gap-4 px-5 pb-5 place-items-center">
                 {TEST_CANDIDATES.map((candidate) => (
                   <CandidateVotingButton
                     key={candidate}
@@ -48,12 +44,12 @@ export const VotingBox = () => {
                     stillActive={true}
                   />
                 ))}
-              </Grid>
+              </div>
             </>
           ) : (
             <>
               <div className="flex flex-col h-full place-content-center">
-                <Heading className="px-12 py-[3vh] text-center" size="lg">
+                <h1 className="px-12 py-[3vh] text-center text-2xl font-bold">
                   {userVoteInActiveRound ? (
                     <>
                       <p>Tack för din röst!</p>
@@ -62,12 +58,9 @@ export const VotingBox = () => {
                   ) : (
                     "Rösta på den kandidat du vill ska vara kvar"
                   )}
-                </Heading>
+                </h1>
               </div>
-              <Grid
-                gridTemplateColumns="1fr 1fr"
-                className="gap-4 px-5 pb-5 place-items-center"
-              >
+              <div className="grid grid-cols-2 gap-4 px-5 pb-5 place-items-center">
                 {INITIAL_CANDIDATES.sort((a, b) => {
                   if (a < b) return 1;
                   if (a > b) return -1;
@@ -79,15 +72,15 @@ export const VotingBox = () => {
                     stillActive={currCandidates.includes(candidate)}
                   />
                 ))}
-              </Grid>
+              </div>
             </>
           )}
         </>
       ) : (
-        <VStack className="mt-10">
-          <Heading>Röstningen är stängd.</Heading>
-          <Heading size="lg">Invänta resultatet.</Heading>
-        </VStack>
+        <div className="flex flex-col items-center mt-10">
+          <h1 className="text-2xl font-bold">Röstningen är stängd.</h1>
+          <h2 className="text-xl font-bold">Invänta resultatet.</h2>
+        </div>
       )}
     </>
   );

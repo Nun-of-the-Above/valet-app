@@ -1,6 +1,50 @@
-import { collection, onSnapshot, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firestore";
+
+// Mock data
+const MOCK_SESSIONS = [
+  {
+    sessionID: "session1",
+    active: true,
+    secretWord: "test",
+    name: "Test Session",
+  },
+];
+
+const MOCK_ROUNDS = [
+  {
+    roundID: "round1",
+    parentSessionID: "session1",
+    number: 1,
+    active: false,
+  },
+  {
+    roundID: "round2",
+    parentSessionID: "session1",
+    number: 2,
+    active: false,
+  },
+  {
+    roundID: "round3",
+    parentSessionID: "session1",
+    number: 3,
+    active: false,
+  },
+];
+
+const MOCK_VOTES = [
+  {
+    roundID: "round1",
+    votes: [],
+  },
+  {
+    roundID: "round2",
+    votes: [],
+  },
+  {
+    roundID: "round3",
+    votes: [],
+  },
+];
 
 export function useAdminData() {
   const [sessions, setSessions] = useState(null);
@@ -10,40 +54,17 @@ export function useAdminData() {
 
   // Get all sessions
   useEffect(() => {
-    const sessionsQuery = query(collection(db, "sessions"));
-
-    const unsubSession = onSnapshot(sessionsQuery, (querySnapshot) => {
-      const allSessions = querySnapshot.docs.map((doc) => doc.data());
-      setSessions(allSessions);
-    });
-
-    return () => unsubSession();
+    setSessions(MOCK_SESSIONS);
   }, []);
 
   // Get all rounds
   useEffect(() => {
-    const roundsQuery = query(collection(db, "rounds"));
-
-    const unsubRounds = onSnapshot(roundsQuery, (querySnapshot) => {
-      const newRounds = querySnapshot.docs
-        .map((doc) => doc.data())
-        .sort((a, b) => a.number - b.number);
-
-      setRounds(newRounds);
-    });
-
-    return () => unsubRounds();
+    setRounds(MOCK_ROUNDS);
   }, []);
 
   // Get all votes
   useEffect(() => {
-    const votesQuery = query(collection(db, "votes"));
-
-    const unsubVotes = onSnapshot(votesQuery, (querySnapshot) => {
-      setVotes(querySnapshot.docs.map((doc) => doc.data()));
-    });
-
-    return () => unsubVotes();
+    setVotes(MOCK_VOTES);
   }, []);
 
   useEffect(() => {
@@ -52,7 +73,7 @@ export function useAdminData() {
       rounds: rounds,
       votes: votes,
     });
-  }, [sessions, rounds, votes]); // eslint-disable-line no-eval
+  }, [sessions, rounds, votes]);
 
   return value;
 }

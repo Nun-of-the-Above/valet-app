@@ -1,18 +1,5 @@
-import { Button } from "@chakra-ui/button";
-import { Box, Flex, Heading, HStack, Text } from "@chakra-ui/layout";
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Spinner,
-} from "@chakra-ui/react";
-import { collection, doc, updateDoc } from "@firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { useAdminContext } from "../../context/admin-context";
-import { db } from "../../firestore";
 import { DeleteSessionButton } from "../DeleteSessionButton";
 import { RoundBox } from "../RoundBox";
 
@@ -43,30 +30,31 @@ export function SessionBox({ session }) {
   return (
     <>
       {!session ? (
-        <Spinner />
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
       ) : (
-        <Box
-          className="flex-col p-3 mb-10 rounded-md"
-          bgColor={session.active ? "green.100" : "gray.100"}
-          border={session.active ? "3px solid green" : "1px solid black"}
+        <div
+          className={`flex flex-col p-3 mb-10 rounded-md ${
+            session.active
+              ? "bg-green-100 border-green-500 border-[3px]"
+              : "bg-gray-100 border-black border"
+          }`}
         >
-          <Heading as="h2" size="lg" className="text-center ">
+          <h2 className="text-center text-2xl font-bold">
             {new Date(session.showDate).toDateString()}, {session.stage},{" "}
             {session.city}
-          </Heading>
+          </h2>
           <SessionInfoBox session={session} />
 
-          <HStack className="justify-around w-full my-8">
+          <div className="flex justify-around w-full my-8 space-x-4">
             <ActivateSessionButton session={session} disabled={activeSession} />
             <DeactivateSessionButton
               session={session}
               disabled={!allRoundsDone}
             />
-            {/* <SetSessionDoneButton session={session} disabled={activeSession} /> */}
             <DeleteSessionButton session={session} />
-          </HStack>
+          </div>
 
-          <HStack className="justify-between">
+          <div className="flex justify-between">
             {rounds &&
               rounds
                 .filter((round) => round.parentSessionID === session.sessionID)
@@ -96,8 +84,8 @@ export function SessionBox({ session }) {
                     />
                   );
                 })}
-          </HStack>
-        </Box>
+          </div>
+        </div>
       )}
     </>
   );
@@ -105,121 +93,132 @@ export function SessionBox({ session }) {
 
 const SessionInfoBox = ({ session }) => {
   return (
-    <Flex className="justify-between p-2 border-2 border-black rounded-lg">
-      <Flex className="flex-col">
-        <Text>
+    <div className="flex justify-between p-2 border-2 border-black rounded-lg">
+      <div className="flex flex-col">
+        <p>
           <span className="font-bold">Status:</span>{" "}
           {session.active ? "Öppen" : "Stängd"}
-        </Text>
-        <Text>
-          <span className="font-bold">Speldatum:</span>
+        </p>
+        <p>
+          <span className="font-bold">Speldatum:</span>{" "}
           {new Date(session.showDate).toLocaleString()}
-        </Text>
-      </Flex>
-      <Flex className="flex-col">
-        <Text>
+        </p>
+      </div>
+      <div className="flex flex-col">
+        <p>
           <span className="font-bold">Scen:</span> {session.stage}
-        </Text>
-        <Text>
+        </p>
+        <p>
           <span className="font-bold">Stad:</span> {session.city}
-        </Text>
-      </Flex>
-      <Flex className="flex-col">
-        <Text>
+        </p>
+      </div>
+      <div className="flex flex-col">
+        <p>
           <span className="font-bold">Genomförd:</span>{" "}
           {session.done ? "Ja" : "Nej"}
-        </Text>
-        <Text>
+        </p>
+        <p>
           <span className="font-bold">Hemligt ord:</span> {session.secretWord}
-        </Text>
-      </Flex>
-    </Flex>
+        </p>
+      </div>
+    </div>
   );
 };
 
 const ActivateSessionButton = ({ session, disabled }) => {
-  const sessionRef = doc(collection(db, "sessions"), session.sessionID);
-
   return (
-    <Button
-      colorScheme={"green"}
+    <button
+      className={`px-4 py-2 rounded text-white ${
+        session.active || session.done || disabled
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-green-500 hover:bg-green-600"
+      }`}
       disabled={session.active || session.done || disabled}
       onClick={() => {
-        updateDoc(sessionRef, { active: true });
+        // Mock updating session
+        console.log("Mock: Setting session active", session.sessionID);
       }}
     >
       ÖPPNA FÖRESTÄLLNING
-    </Button>
+    </button>
   );
 };
 
 const SetSessionDoneButton = ({ session, disabled }) => {
-  const sessionRef = doc(collection(db, "sessions"), session.sessionID);
-
   return (
-    <Button
+    <button
+      className={`px-4 py-2 rounded ${
+        disabled
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-blue-500 hover:bg-blue-600 text-white"
+      }`}
       onClick={() => {
-        updateDoc(sessionRef, { done: true });
+        // Mock updating session
+        console.log("Mock: Setting session done", session.sessionID);
       }}
       disabled={disabled}
     >
       Sätt till klar och visa sista bild
-    </Button>
+    </button>
   );
 };
 
 const DeactivateSessionButton = ({ session, disabled }) => {
-  const sessionRef = doc(collection(db, "sessions"), session.sessionID);
-
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef();
 
   return (
     <>
-      <Button
-        colorScheme="red"
+      <button
+        className={`px-4 py-2 rounded text-white ${
+          !session.active || disabled
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-red-500 hover:bg-red-600"
+        }`}
         disabled={!session.active || disabled}
         onClick={() => setIsOpen(true)}
       >
         Stäng föreställning
-      </Button>
+      </button>
 
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Är du säker?
-            </AlertDialogHeader>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md">
+            <h3 className="text-lg font-bold mb-4">Är du säker?</h3>
 
-            <AlertDialogBody>
+            <p className="mb-6">
               Alla användare kommer loggas ut. Föreställning sätts till
               "Genomförd".
-            </AlertDialogBody>
+            </p>
 
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+            <div className="flex justify-end space-x-3">
+              <button
+                ref={cancelRef}
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                onClick={onClose}
+              >
                 Avbryt
-              </Button>
-              <Button
-                marginLeft="3"
-                colorScheme={"red"}
+              </button>
+              <button
+                className={`px-4 py-2 rounded text-white ${
+                  !session.active
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
+                }`}
                 disabled={!session.active}
                 onClick={() => {
                   onClose();
-                  updateDoc(sessionRef, { active: false, done: true });
+                  // Mock updating session
+                  console.log("Mock: Deactivating session", session.sessionID);
                 }}
               >
                 STÄNG FÖRESTÄLLNING
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

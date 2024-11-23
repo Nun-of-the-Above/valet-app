@@ -1,109 +1,72 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const db = admin.firestore();
+export const resetRound = async (data) => {
+  const { roundID, parentSessionID, voteCount } = data;
+  console.log("Mock: Received data", data);
 
-// Resets the entire round and deletes corresponding votes.
-//TODO: MOVE THIS TO LOCAL ADMIN INSTEAD
-exports.resetRound = functions.https.onCall(async (data, context) => {
-  const roundID = data.roundID;
-  const parentSessionID = data.parentSessionID;
-  functions.logger.info("Req body: " + data);
-  functions.logger.info("SessionID : " + data.parentSessionID);
+  try {
+    // Mock getting votes
+    console.log("Mock: Getting votes");
+    const votes = [
+      { roundID: roundID, voteID: "vote1" },
+      { roundID: roundID, voteID: "vote2" },
+      { roundID: "other", voteID: "vote3" },
+    ];
 
-  const querySnapshot = await db.collection("votes").get();
+    // Mock deleting votes for this round
+    const votesToDelete = votes.filter((vote) => vote.roundID === roundID);
+    console.log("Mock: Deleting votes", votesToDelete);
 
-  const votes = [];
-  querySnapshot.forEach((doc) => votes.push(doc.data()));
+    // Mock getting session data
+    console.log("Mock: Getting session data for", parentSessionID);
+    const session = {
+      candidatesLeft: ["Alina", "Isabelle", "Filip"],
+    };
 
-  //TODO: Turn this into a batch with error check.
-  votes
-    .filter((vote) => vote.roundID === roundID)
-    .forEach((vote) => {
-      db.collection("votes")
-        .doc(vote.voteID)
-        .delete()
-        .then(() => {
-          functions.logger.info("Successful delete of vote.", {
-            structuredData: true,
-          });
-        })
-        .catch(() => {
-          functions.logger.info("Error deleting docs", {
-            structuredData: true,
-          });
-        });
-    });
-
-  const sessionDoc = await db.collection("sessions").doc(parentSessionID).get();
-  const session = sessionDoc.data();
-  const candidatesLeft = session.candidatesLeft;
-  // const voteCountArray = candidatesLeft.map((name) => [name, 0]);
-  // const voteCount = Object.fromEntries(voteCountArray);
-
-  await db
-    .collection("rounds")
-    .doc(roundID)
-    .update({
+    // Mock updating round
+    console.log("Mock: Updating round", roundID, {
       roundActive: false,
       votingActive: false,
       done: false,
       displayResults: false,
       timer: 10,
-    })
-    .then(() =>
-      functions.logger.info("Round was successfully reset.", {
-        structuredData: true,
-      })
-    )
-    .catch(() =>
-      functions.logger.info("Error updating round", {
-        structuredData: true,
-      })
-    );
+    });
 
-  functions.logger.info("Candidates before push: ", candidatesLeft);
-  functions.logger.info("VoteCount: ", data.voteCount);
+    // Get loser and update candidates
+    const loser = Object.entries(voteCount).sort((a, b) => a[1] - b[1])[0][0];
+    const updatedCandidates = [...session.candidatesLeft, loser];
+    console.log("Mock: Updating session candidates to", updatedCandidates);
 
-  const loser = Object.entries(data.voteCount).sort((a, b) => a - b)[0];
-  candidatesLeft.push(loser[0]);
+    // Mock getting remaining rounds
+    const remainingRounds = [
+      {
+        roundID: "round1",
+        number: 1,
+        done: false,
+        voteCount: { Alina: 2, Isabelle: 1 },
+      },
+      {
+        roundID: "round2",
+        number: 2,
+        done: false,
+        voteCount: { Alina: 0, Filip: 1 },
+      },
+    ];
 
-  functions.logger.info("Candidates after push: ", candidatesLeft);
+    // Mock updating remaining rounds
+    remainingRounds.forEach((round) => {
+      const voteCountArray = Object.entries(round.voteCount);
+      const filteredVoteCount = voteCountArray.filter(([name]) =>
+        updatedCandidates.includes(name)
+      );
+      const updatedVoteCount = Object.fromEntries(filteredVoteCount);
 
-  await db
-    .collection("sessions")
-    .doc(parentSessionID)
-    .update({ candidatesLeft: candidatesLeft });
+      console.log(
+        `Mock: Updating voteCount for round ${round.number}`,
+        updatedVoteCount
+      );
+    });
 
-  const queryRoundsSnapshot = await db.collection("rounds").get();
-
-  const rounds = [];
-  queryRoundsSnapshot.forEach((doc) => rounds.push(doc.data()));
-
-  const remainingRounds = rounds.filter((round) => !round.done);
-
-  remainingRounds.forEach((round) => {
-    const voteCountArray = Object.entries(round.voteCount);
-    const voteCountWithoutLoser = voteCountArray.filter(([candidateName]) =>
-      candidatesLeft.includes(candidateName)
-    );
-    const voteCountObj = Object.fromEntries(voteCountWithoutLoser);
-
-    db.collection("rounds")
-      .doc(round.roundID)
-      .update({
-        voteCount: voteCountObj,
-      })
-      .then(() =>
-        functions.logger.info(
-          "Loser added to voteCount in round number ",
-          round.number
-        )
-      )
-      .catch(() => {
-        functions.logger.info(
-          "Failed to update voteCount in round number ",
-          round.number
-        );
-      });
-  });
-});
+    console.log("Successfully reset round");
+  } catch (error) {
+    console.error("Error resetting round:", error);
+  }
+};

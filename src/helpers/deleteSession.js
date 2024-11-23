@@ -1,34 +1,24 @@
-import { collection, doc, writeBatch } from "firebase/firestore";
-import { db } from "../firestore";
-
 export const deleteSession = async ({ rounds, session, votes }) => {
-  const sessionRef = doc(collection(db, "sessions"), session.sessionID);
   try {
-    const batch = writeBatch(db);
+    // Get rounds owned by this session
     const roundsOwnedBySession = rounds.filter(
       (r) => r.parentSessionID === session.sessionID
     );
 
-    // Schedule all rounds for deletion.
+    // Mock deleting rounds and their votes
     roundsOwnedBySession.forEach((round) => {
-      const roundRef = doc(db, "rounds", round.roundID);
-      batch.delete(roundRef);
-      console.log(`Round added to batch for delete. RoundID: ${round.roundID}`);
+      console.log(`Mock: Deleting round ${round.roundID}`);
 
-      // Schedule votes of each round for deletion as well.
-      votes
-        .filter((v) => v.roundID === round.roundID)
-        .forEach((v) => {
-          const voteRef = doc(db, "votes", v.voteID);
-          batch.delete(voteRef);
-        });
+      // Mock deleting votes for this round
+      const votesForRound = votes.filter((v) => v.roundID === round.roundID);
+      console.log(
+        `Mock: Deleting ${votesForRound.length} votes for round ${round.roundID}`
+      );
     });
 
-    batch.delete(sessionRef);
-    await batch.commit();
-    console.log(
-      "Batch of session/rounds/votes was successfully deleted in db."
-    );
+    // Mock deleting session
+    console.log(`Mock: Deleting session ${session.sessionID}`);
+    console.log("Successfully deleted session, rounds and votes");
   } catch (e) {
     console.error("Error deleting session, rounds and votes: ", e);
   }

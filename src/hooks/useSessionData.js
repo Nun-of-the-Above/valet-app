@@ -1,119 +1,107 @@
-import { collection, onSnapshot, query, where } from "@firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firestore";
-import { getDatabase, ref, onValue } from "firebase/database";
-const R = require("ramda");
 
-// Gets active session from firestore
+// Mock data
+const MOCK_SESSIONS = [
+  {
+    sessionID: "session1",
+    active: true,
+    secretWord: "test",
+    name: "Test Session",
+  },
+];
+
+const MOCK_ROUNDS = [
+  {
+    roundID: "round1",
+    parentSessionID: "session1",
+    number: 1,
+    active: false,
+  },
+  {
+    roundID: "round2",
+    parentSessionID: "session1",
+    number: 2,
+    active: false,
+  },
+  {
+    roundID: "round3",
+    parentSessionID: "session1",
+    number: 3,
+    active: false,
+  },
+];
+
+const MOCK_VOTES = [
+  {
+    roundID: "round1",
+    votes: [],
+  },
+  {
+    roundID: "round2",
+    votes: [],
+  },
+  {
+    roundID: "round3",
+    votes: [],
+  },
+];
+
 export function useSessionData() {
   const [votes, setVotes] = useState(null);
   const [rounds, setRounds] = useState(null);
   const [activeSession, setActiveSession] = useState(null);
   const [allSessions, setAllSessions] = useState(null);
-  const [timer, setTimer] = useState(null);
+  const [timer, setTimer] = useState(0);
   const [value, setValue] = useState({});
-  const database = getDatabase();
 
+  // Mock timer
   useEffect(() => {
-    const timerRef = ref(database, "timer");
-    const unsubTimer = onValue(timerRef, (snapshot) => {
-      const data = snapshot.val();
-      setTimer(data.value);
-    });
-    return unsubTimer;
+    const interval = setInterval(() => {
+      setTimer((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Get all the sessions
+  // Get all sessions
   useEffect(() => {
-    const sessionsQuery = query(collection(db, "sessions"));
-
-    const unsubSession = onSnapshot(sessionsQuery, (querySnapshot) => {
-      const sessions = querySnapshot.docs.map((doc) => doc.data());
-      setAllSessions(sessions);
-    });
-
-    return () => unsubSession();
+    setAllSessions(MOCK_SESSIONS);
   }, []);
 
-  // Get the active session
+  // Get active session
   useEffect(() => {
-    const sessionQuery = query(
-      collection(db, "sessions"),
-      where("active", "==", true)
-    );
-
-    const unsubSession = onSnapshot(sessionQuery, (querySnapshot) => {
-      if (querySnapshot.size === 1) {
-        const session = querySnapshot.docs[0].data();
-
-        setActiveSession(session);
-      } else {
-        setActiveSession({});
-        setRounds(null);
-        setVotes(null);
-      }
-    });
-
-    return () => unsubSession();
+    const session = MOCK_SESSIONS.find((s) => s.active);
+    setActiveSession(session || {});
   }, []);
 
-  // Get rounds based on active session
+  // Get rounds
   useEffect(() => {
-    //Not sure if this check works
-    if (!activeSession || R.isEmpty(activeSession)) return;
+    if (!activeSession?.sessionID) return;
 
-    const roundsQuery = query(
-      collection(db, "rounds"),
-      where("parentSessionID", "==", activeSession.sessionID)
-    );
+    const sessionRounds = MOCK_ROUNDS.filter(
+      (r) => r.parentSessionID === activeSession.sessionID
+    ).sort((a, b) => a.number - b.number);
 
-    const unsubRounds = onSnapshot(roundsQuery, (querySnapshot) => {
-      if (querySnapshot.size >= 3) {
-        const newRounds = querySnapshot.docs
-          .map((doc) => doc.data())
-          .sort((a, b) => a.number - b.number);
-
-        setRounds(newRounds);
-      } else {
-        setRounds(null);
-      }
-    });
-
-    return () => {
-      unsubRounds();
-    };
+    setRounds(sessionRounds.length >= 3 ? sessionRounds : null);
   }, [activeSession]);
 
+  // Get votes
   useEffect(() => {
     if (!rounds) return;
-    const votesQuery = query(
-      collection(db, "votes"),
-      where(
-        "roundID",
-        "in",
-        rounds.map((round) => round.roundID)
-      )
-    );
-
-    const unsubVotes = onSnapshot(votesQuery, (querySnapshot) => {
-      // Here we know that all data is gathered (session, rounds)
-      setVotes(querySnapshot.docs.map((doc) => doc.data()));
-    });
-
-    return () => {
-      unsubVotes();
-    };
+    const roundIds = rounds.map((r) => r.roundID);
+    const roundVotes = MOCK_VOTES.filter((v) => roundIds.includes(v.roundID));
+    setVotes(roundVotes);
   }, [rounds]);
 
+  // Set combined value
   useEffect(() => {
     setValue({
-      allSessions: allSessions,
-      activeSession: activeSession,
-      rounds: rounds,
-      votes: votes,
-      timer: timer,
+      allSessions,
+      activeSession,
+      rounds,
+      votes,
+      timer,
     });
-  }, [votes, allSessions]); // eslint-disable-line no-eval
+  }, [votes, allSessions, activeSession, rounds, timer]);
 
   return value;
 }

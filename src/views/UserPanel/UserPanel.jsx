@@ -1,5 +1,3 @@
-import { Heading, VStack } from "@chakra-ui/layout";
-import { Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { CandidateCard } from "../../components/CandidateCard";
 import { ResultsBoxUserView } from "../../components/ResultsBoxUserView/ResultsBoxUserView";
@@ -41,19 +39,19 @@ export function UserPanel() {
               {activeRound.votingActive && <VotingBox />}
 
               {activeRound.done && !activeRound.displayResults && (
-                <div className="flex flex-col gap-4 mt-10 place-content-center place-items-center animate-pulse">
-                  <Spinner size="xl" speed="1s" />
-                  <Heading size="md" className="mb-2">
+                <div className="flex flex-col gap-4 mt-10 items-center justify-center animate-pulse">
+                  <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent" />
+                  <h2 className="text-xl font-medium mb-2">
                     Rösterna räknas...
-                  </Heading>
+                  </h2>
                 </div>
               )}
 
               {!activeRound.done && !activeRound.votingActive && (
-                <div className="flex flex-col mt-5 place-content-center">
-                  <Heading size="md" className="mt-4 text-center">
+                <div className="flex flex-col mt-5 justify-center">
+                  <h2 className="text-xl font-medium mt-4 text-center">
                     Ingen röstning pågår just nu.
-                  </Heading>
+                  </h2>
                 </div>
               )}
 
@@ -62,26 +60,26 @@ export function UserPanel() {
           ) : (
             <>
               {!activeSession.done && (
-                <div className="flex flex-col w-full mt-5 place-content-center">
-                  <Heading size="md" className="mt-4 text-center">
+                <div className="flex flex-col w-full mt-5 justify-center">
+                  <h2 className="text-xl font-medium mt-4 text-center">
                     Ingen röstning pågår just nu.
-                  </Heading>
+                  </h2>
                 </div>
               )}
             </>
           )}
 
           {activeSession.done && (
-            <VStack>
-              <Heading>Vinnaren är...</Heading>
+            <div className="flex flex-col items-center space-y-4">
+              <h1 className="text-2xl font-bold">Vinnaren är...</h1>
               <CandidateCard name={currCandidates} isLoaded={winnerDelay} />
-            </VStack>
+            </div>
           )}
         </>
       ) : (
-        <VStack className="mt-10">
-          <Spinner />
-        </VStack>
+        <div className="flex flex-col items-center mt-10">
+          <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent" />
+        </div>
       )}
     </>
   );
